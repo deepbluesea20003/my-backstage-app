@@ -13,7 +13,6 @@ import {
   EntityDependsOnResourcesCard,
   EntityHasComponentsCard,
   EntityHasResourcesCard,
-  EntityHasSubcomponentsCard,
   EntityHasSystemsCard,
   EntityLayout,
   EntityLinksCard,
@@ -57,6 +56,9 @@ import {
   EntityKubernetesContent,
   isKubernetesAvailable,
 } from '@backstage/plugin-kubernetes';
+import { useAsyncEntity } from '@backstage/plugin-catalog-react';
+import { useState } from 'react';
+import { InspectEntityDialog } from '../tmp/src';
 
 const techdocsContent = (
   <EntityTechdocsContent>
@@ -195,17 +197,6 @@ const websiteEntityPage = (
       if={isKubernetesAvailable}
     >
       <EntityKubernetesContent />
-    </EntityLayout.Route>
-
-    <EntityLayout.Route path="/dependencies" title="Dependencies">
-      <Grid container spacing={3} alignItems="stretch">
-        <Grid item md={6}>
-          <EntityDependsOnComponentsCard variant="gridItem" />
-        </Grid>
-        <Grid item md={6}>
-          <EntityDependsOnResourcesCard variant="gridItem" />
-        </Grid>
-      </Grid>
     </EntityLayout.Route>
 
     <EntityLayout.Route path="/docs" title="Docs">
@@ -386,15 +377,40 @@ const domainPage = (
   </EntityLayout>
 );
 
-export const entityPage = (
-  <EntitySwitch>
-    <EntitySwitch.Case if={isKind('component')} children={componentPage} />
-    <EntitySwitch.Case if={isKind('api')} children={apiPage} />
-    <EntitySwitch.Case if={isKind('group')} children={groupPage} />
-    <EntitySwitch.Case if={isKind('user')} children={userPage} />
-    <EntitySwitch.Case if={isKind('system')} children={systemPage} />
-    <EntitySwitch.Case if={isKind('domain')} children={domainPage} />
+export function EntityPage() {
+  const data = useAsyncEntity();
+  const entity = data.entity;
+  // eslint-disable-next-line no-console
+  console.log('Rendering EntityPage for', entity?.metadata.name);
 
-    <EntitySwitch.Case>{defaultEntityPage}</EntitySwitch.Case>
-  </EntitySwitch>
-);
+  const [open, setOpen] = useState<boolean>(true);
+
+  const dialogProps = {
+    open: open,
+    entity: entity!,
+    onClose: () => setOpen(false),
+  };
+  if(entity) {
+    return (
+      <>
+        <Button variant="outlined" color="primary" onClick={() => setOpen(true)}>
+          Inspect Entity
+        </Button>
+        <InspectEntityDialog {...dialogProps} />
+      </>
+      
+    );
+  }
+  return (
+    <EntitySwitch>
+      <EntitySwitch.Case if={isKind('component')} children={componentPage} />
+      <EntitySwitch.Case if={isKind('api')} children={apiPage} />
+      <EntitySwitch.Case if={isKind('group')} children={groupPage} />
+      <EntitySwitch.Case if={isKind('user')} children={userPage} />
+      <EntitySwitch.Case if={isKind('system')} children={systemPage} />
+      <EntitySwitch.Case if={isKind('domain')} children={domainPage} />
+
+      <EntitySwitch.Case>{defaultEntityPage}</EntitySwitch.Case>
+    </EntitySwitch>
+  );
+};
