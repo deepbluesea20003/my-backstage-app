@@ -125,8 +125,6 @@ export function InspectEntityDialog(props: {
     return null;
   }
 
-  console.log('InspectEntityDialog rendering for here', props.entity.metadata.name);
-
   return (
     <Dialog
       fullWidth

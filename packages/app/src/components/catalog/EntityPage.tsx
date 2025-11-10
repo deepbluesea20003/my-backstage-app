@@ -58,7 +58,8 @@ import {
 } from '@backstage/plugin-kubernetes';
 import { useAsyncEntity } from '@backstage/plugin-catalog-react';
 import { useState } from 'react';
-import { InspectEntityDialog } from '../tmp/src';
+import { InspectEntityDialog } from '../tmp/src/components/InspectEntityDialog/InspectEntityDialog';
+
 
 const techdocsContent = (
   <EntityTechdocsContent>
